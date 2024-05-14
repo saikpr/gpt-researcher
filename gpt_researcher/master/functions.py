@@ -7,7 +7,6 @@ from gpt_researcher.master.prompts import *
 from gpt_researcher.scraper.scraper import Scraper
 from gpt_researcher.utils.llm import *
 
-
 def get_retriever(retriever):
     """
     Gets the retriever
@@ -52,10 +51,12 @@ def get_retriever(retriever):
     return retriever
 
 
-async def choose_agent(query, cfg):
+async def choose_agent(query, cfg, parent_query=None):
     """
     Chooses the agent automatically
     Args:
+        parent_query: In some cases the research is conducted on a subtopic from the main query.
+        Tge parent query allows the agent to know the main context for better reasoning.
         query: original query
         cfg: Config
 
@@ -63,6 +64,7 @@ async def choose_agent(query, cfg):
         agent: Agent name
         agent_role_prompt: Agent role prompt
     """
+    query = f"{parent_query} - {query}" if parent_query else f"{query}"
     try:
         response = await create_chat_completion(
             model=cfg.smart_llm_model,
@@ -78,7 +80,7 @@ async def choose_agent(query, cfg):
         return "Default Agent", "You are an AI critical thinker research assistant. Your sole purpose is to write well written, critically acclaimed, objective and structured reports on given text."
 
 
-async def get_sub_queries(query, agent_role_prompt, cfg):
+async def get_sub_queries(query: str, agent_role_prompt: str, cfg, parent_query: str, report_type:str):
     """
     Gets the sub queries
     Args:
@@ -95,7 +97,7 @@ async def get_sub_queries(query, agent_role_prompt, cfg):
         model=cfg.smart_llm_model,
         messages=[
             {"role": "system", "content": f"{agent_role_prompt}"},
-            {"role": "user", "content": generate_search_queries_prompt(query, max_iterations=max_research_iterations)}],
+            {"role": "user", "content": generate_search_queries_prompt(query, parent_query, report_type, max_iterations=max_research_iterations)}],
         temperature=0,
         llm_provider=cfg.llm_provider
     )
@@ -227,7 +229,7 @@ async def generate_report(
         report:
 
     """
-    generate_prompt = get_report_by_type(report_type)
+    generate_prompt = get_prompt_by_report_type(report_type)
     report = ""
 
     if report_type == "subtopic_report":
@@ -283,13 +285,13 @@ async def get_report_introduction(query, context, role, config, websocket=None):
             websocket=websocket,
             max_tokens=config.smart_token_limit
         )
-        
+
         return introduction
     except Exception as e:
         print(f"{Fore.RED}Error in generating report introduction: {e}{Style.RESET_ALL}")
 
     return ""
-    
+
 def extract_headers(markdown_text: str):
     # Function to extract headers from markdown text
 
@@ -356,7 +358,7 @@ def table_of_contents(markdown_text: str):
 def add_source_urls(report_markdown: str, visited_urls: set):
     """
     This function takes a Markdown report and a set of visited URLs as input parameters.
-    
+
     Args:
       report_markdown (str): The `add_source_urls` function takes in two parameters:
       visited_urls (set): Visited_urls is a set that contains URLs that have already been visited. This

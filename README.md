@@ -1,5 +1,5 @@
 # 🔎 GPT Researcher
-[![Official Website](https://img.shields.io/badge/Official%20Website-tavily.com-blue?style=for-the-badge&logo=world&logoColor=white)](https://tavily.com)
+[![Official Website](https://img.shields.io/badge/Official%20Website-gptr.dev-blue?style=for-the-badge&logo=world&logoColor=white)](https://gptr.dev)
 [![Discord Follow](https://dcbadge.vercel.app/api/server/2pFkc83fRq?style=for-the-badge)](https://discord.com/invite/2pFkc83fRq)
 
 [![GitHub Repo stars](https://img.shields.io/github/stars/assafelovic/gpt-researcher?style=social)](https://github.com/assafelovic/gpt-researcher)
@@ -10,8 +10,8 @@
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 [contributors-shield]: https://img.shields.io/github/contributors/assafelovic/gpt-researcher?style=for-the-badge&color=orange
 
--  [English](README.md)
--  [中文](README-zh_CN.md)
+-  [English](https://github.com/assafelovic/gpt-researcher/blob/master/README.md)
+-  [中文](https://github.com/assafelovic/gpt-researcher/blob/master/README-zh_CN.md)
 
 **GPT Researcher is an autonomous agent designed for comprehensive online research on a variety of tasks.** 
 
@@ -23,8 +23,11 @@ The agent can produce detailed, factual and unbiased research reports, with cust
 
 - To form objective conclusions for manual research tasks can take time, sometimes weeks to find the right resources and information.
 - Current LLMs are trained on past and outdated information, with heavy risks of hallucinations, making them almost irrelevant for research tasks.
-- Solutions that enable web search (such as ChatGPT + Web Plugin), only consider limited resources and content that in some cases result in superficial conclusions or biased answers.
-- Using only a selection of resources can create bias in determining the right conclusions for research questions or tasks. 
+- Services that enable web search (such as ChatGPT + Web Plugin), only consider limited sources and content that in some cases result in superficial and biased answers.
+- Using only a selection of web sources can create bias in determining the right conclusions for research tasks.
+
+## Demo
+https://github.com/assafelovic/gpt-researcher/assets/13554167/dd6cf08f-b31e-40c6-9907-1915f52a7110
 
 ## Architecture
 The main idea is to run "planner" and "execution" agents, whereas the planner generates questions to research, and the execution agents seek the most related information based on each generated research question. Finally, the planner filters and aggregates all related information and creates a research report. <br /> <br /> 
@@ -41,9 +44,6 @@ More specifically:
 * For each research question, trigger a crawler agent that scrapes online resources for information relevant to the given task.
 * For each scraped resources, summarize based on relevant information and keep track of its sources.
 * Finally, filter and aggregate all summarized sources and generate a final research report.
-
-## Demo
-https://github.com/assafelovic/gpt-researcher/assets/13554167/d5df04a9-631a-4509-aa55-2049b5a9e9bc
 
 ## Tutorials
  - [How it Works](https://docs.tavily.com/blog/building-gpt-researcher)
@@ -68,121 +68,93 @@ Please see [here](https://docs.tavily.com/docs/gpt-researcher/getting-started) f
 - How-To examples (demos, integrations, docker support)
 - Reference (full API docs)
 
-## Quickstart
+## ⚙️ Getting Started
+### Installation
 > **Step 0** - Install Python 3.11 or later. [See here](https://www.tutorialsteacher.com/python/install-python) for a step-by-step guide.
 
-<br />
-
-> **Step 1** - Download the project and navigate to its directory. You'll encounter two options: Virtual Environment and Poetry. Select either Step-2 or Step-3 based on your familiarity with each.:
+> **Step 1** - Download the project and navigate to its directory
 
 ```bash
 git clone https://github.com/assafelovic/gpt-researcher.git
 cd gpt-researcher
 ```
 
-<br />
+> **Step 3** - Set up API keys using two methods: exporting them directly or storing them in a `.env` file.
 
-> **Step 2** - 🌐🌀 Virtual Environment 🛡️.
-
-#### *Establishing the Virtual Environment with Activate/Deactivate configuration*
-
-Create a virtual environment using the `venv` package with the environment name `<your_name>`, for example, `env`. Execute the following command in the PowerShell/CMD terminal:
-
-```bash
-python -m venv env
-```
-
-To activate the virtual environment, use the following activation script in PowerShell/CMD terminal:
-
-```bash
-.\env\Scripts\activate
-```
-
-To deactivate the virtual environment, run the following deactivation script in PowerShell/CMD terminal:
-
-```bash
-deactivate
-```
-
-#### *Install the dependencies for a Virtual environment*
-
-After activating the `env` environment, install dependencies using the `requirements.txt` file with the following command:
-
-```bash
-python -m pip install -r requirements.txt
-```
-
-<br />
-
-> **Step 3** - 📜🎭 Poetry 📝
-
-#### *Establishing the Poetry dependencies and virtual environment with Poetry version `~1.7.1`*
-
-Install project dependencies and simultaneously create a virtual environment for the specified project. By executing this command, Poetry reads the project's "pyproject.toml" file to determine the required dependencies and their versions, ensuring a consistent and isolated development environment. The virtual environment allows for a clean separation of project-specific dependencies, preventing conflicts with system-wide packages and enabling more straightforward dependency management throughout the project's lifecycle.
-
-```bash
-poetry install
-```
-
-#### *Activate the virtual environment associated with a Poetry project*
-
-By running this command, the user enters a shell session within the isolated environment associated with the project, providing a dedicated space for development and execution. This virtual environment ensures that the project dependencies are encapsulated, avoiding conflicts with system-wide packages. Activating the Poetry shell is essential for seamlessly working on a project, as it ensures that the correct versions of dependencies are used and provides a controlled environment conducive to efficient development and testing.
-
-```bash
-poetry shell
-```
-
-<br />
-
-> **Step 4** - Set up API keys using two methods: exporting them directly and storing them in a `.env` file.
-
-For Linux/Temporary Windows Setup, use the export method:
+For Linux/Windows temporary setup, use the export method:
 
 ```bash
 export OPENAI_API_KEY={Your OpenAI API Key here}
 export TAVILY_API_KEY={Your Tavily API Key here}
 ```
 
-For a more permanent setup, create a `.env` file in the current `gpt-researcher` folder and input the keys as follows:
+For a more permanent setup, create a `.env` file in the current `gpt-researcher` directory and input the env vars (without `export`).
+
+- **For LLM, we recommend [OpenAI GPT](https://platform.openai.com/docs/guides/gpt)**, but you can use any other LLM model (including open sources) supported by [Langchain Adapter](https://python.langchain.com/docs/integrations/adapters/openai/), simply change the llm model and provider in config/config.py. 
+- **For web search API, we recommend [Tavily Search API](https://app.tavily.com)**, but you can also refer to other search APIs of your choice by changing the search provider in config/config.py to `"duckduckgo"`, `"googleAPI"`, `"bing"`, `"googleSerp"`, `"searx"` and more. Then add the corresponding env API key as seen in the config.py file.
+
+### Quickstart
+
+> **Step 1** - Install dependencies
 
 ```bash
-OPENAI_API_KEY={Your OpenAI API Key here}
-TAVILY_API_KEY={Your Tavily API Key here}
+pip install -r requirements.txt
 ```
 
-- **For LLM, we recommend [OpenAI GPT](https://platform.openai.com/docs/guides/gpt)**, but you can use any other LLM model (including open sources) supported by [Langchain Adapter](https://python.langchain.com/docs/guides/adapters/openai), simply change the llm model and provider in config/config.py. 
-- **For search engine, we recommend [Tavily Search API](https://app.tavily.com)**, but you can also refer to other search engines of your choice by changing the search provider in config/config.py to `"duckduckgo"`, `"googleAPI"`, `"googleSerp"`, or `"searx"`. Then add the corresponding env API key as seen in the config.py file.
+> **Step 2** - Run the agent with FastAPI
+
+```bash
+uvicorn main:app --reload
+```
+
+> **Step 3** - Go to http://localhost:8000 on any browser and enjoy researching!
 
 <br />
 
-> **Step 5** - Launch the FastAPI application agent on a *Virtual Environment or Poetry* setup by executing the following command:
+**To learn how to get started with [Docker](https://docs.tavily.com/docs/gpt-researcher/getting-started#try-it-with-docker), [Poetry](https://docs.tavily.com/docs/gpt-researcher/getting-started#poetry) or a [virtual environment](https://docs.tavily.com/docs/gpt-researcher/getting-started#virtual-environment) check out the [documentation](https://docs.tavily.com/docs/gpt-researcher/getting-started) page.**
+
+### Run as PIP package
 ```bash
-python -m uvicorn main:app --reload
+pip install gpt-researcher
 ```
 
-- **Issue: OSError** - For Windows 11 Pro/Home users encountering the 'OSError: cannot load library 'gobject-2.0-0'' error, please refer to [this OSError GitHub issue](https://github.com/assafelovic/gpt-researcher/issues/314). To resolve this issue, install the `WeasyPrint` software on your local machine by using the [GTK for Windows Runtime Environment Installer](https://github.com/tschoonj/GTK-for-Windows-Runtime-Environment-Installer/releases/tag/2022-01-04).
+```python
+from gpt_researcher import GPTResearcher
 
-<br />
+query = "why is Nvidia stock going up?"
+researcher = GPTResearcher(query=query, report_type="research_report")
+# Conduct research on the given query
+research_result = await researcher.conduct_research()
+# Write the report
+report = await researcher.write_report()
+```
 
-> **Step 6** - Visit http://localhost:8000 in any web browser and explore your research!
+**For more examples and configurations, please refer to the [PIP documentation](https://docs.tavily.com/docs/gpt-researcher/pip-package) page.**
 
-To learn how to get started with Docker or to learn more about the features and services check out the [documentation](https://docs.tavily.com) page.
+## 👪 Multi-Agent Assistant
+As AI evolves from prompt engineering and RAG to multi-agent systems, we're excited to introduce our new multi-agent assistant built with [LangGraph](https://python.langchain.com/v0.1/docs/langgraph/).
+
+By using LangGraph, the research process can be significantly improved in depth and quality by leveraging multiple agents with specialized skills. Inspired by the recent [STORM](https://arxiv.org/abs/2402.14207) paper, this project showcases how a team of AI agents can work together to conduct research on a given topic, from planning to publication.
+
+An average run generates a 5-6 page research report in multiple formats such as PDF, Docx and Markdown.
+
+Check it out [here](https://github.com/assafelovic/gpt-researcher/tree/master/multi_agents) or head over to our [documentation](https://docs.tavily.com/docs/gpt-researcher/agent_frameworks) for more information.
 
 ## 🚀 Contributing
-We highly welcome contributions! Please check out [contributing](CONTRIBUTING.md) if you're interested.
+We highly welcome contributions! Please check out [contributing](https://github.com/assafelovic/gpt-researcher/blob/master/CONTRIBUTING.md) if you're interested.
 
 Please check out our [roadmap](https://trello.com/b/3O7KBePw/gpt-researcher-roadmap) page and reach out to us via our [Discord community](https://discord.gg/2pFkc83fRq) if you're interested in joining our mission.
 
 ## ✉️ Support / Contact us
 - [Community Discord](https://discord.gg/spBgZmm3Xe)
-- Our email: assafelovic@gmail.com
+- Author Email: assaf.elovic@gmail.com
 
 ## 🛡 Disclaimer
 
 This project, GPT Researcher, is an experimental application and is provided "as-is" without any warranty, express or implied. We are sharing codes for academic purposes under the MIT license. Nothing herein is academic advice, and NOT a recommendation to use in academic or research papers.
 
 Our view on unbiased research claims:
-1. The whole point of our scraping system is to reduce incorrect fact. How? The more sites we scrape the less chances of incorrect data. We are scraping 20 per research, the chances that they are all wrong is extremely low.
+1. The main goal of GPT Researcher is to reduce incorrect and biased facts. How? We assume that the more sites we scrape the less chances of incorrect data. By scraping over 20 sites per research, and choosing the most frequent information, the chances that they are all wrong is extremely low.
 2. We do not aim to eliminate biases; we aim to reduce it as much as possible. **We are here as a community to figure out the most effective human/llm interactions.**
 3. In research, people also tend towards biases as most have already opinions on the topics they research about. This tool scrapes many opinions and will evenly explain diverse views that a biased person would never have read.
 

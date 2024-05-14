@@ -1,15 +1,25 @@
 from datetime import datetime, timezone
-
+import warnings
 from gpt_researcher.utils.enum import ReportType
 
 
-def generate_search_queries_prompt(question, max_iterations=3):
+def generate_search_queries_prompt(question: str, parent_query: str, report_type: str, max_iterations: int=3,):
     """ Generates the search queries prompt for the given question.
-    Args: question (str): The question to generate the search queries prompt for
+    Args: 
+        question (str): The question to generate the search queries prompt for
+        parent_query (str): The main question (only relevant for detailed reports)
+        report_type (str): The report type
+        max_iterations (int): The maximum number of search queries to generate
+    
     Returns: str: The search queries prompt for the given question
     """
+    
+    if report_type == ReportType.DetailedReport.value or report_type == ReportType.SubtopicReport.value:
+        task = f"{parent_query} - {question}"
+    else:
+        task = question
 
-    return f'Write {max_iterations} google search queries to search online that form an objective opinion from the following task: "{question}"' \
+    return f'Write {max_iterations} google search queries to search online that form an objective opinion from the following task: "{task}"' \
            f'Use the current date if needed: {datetime.now().strftime("%B %d, %Y")}.\n' \
            f'Also include in the queries specified task details such as locations, names, etc.\n' \
            f'You must respond with a list of strings in the following format: ["query 1", "query 2", "query 3"].'
@@ -49,7 +59,7 @@ def generate_report_prompt(question, context, report_format="apa", total_words=1
             f"Assume that the current date is {datetime.now().strftime('%B %d, %Y')}"
 
 
-def generate_resource_report_prompt(question, context, report_format="apa", total_words=1000):
+def generate_resource_report_prompt(question, context, report_format="apa", total_words=700):
     """Generates the resource report prompt for the given question and research summary.
 
     Args:
@@ -65,7 +75,7 @@ def generate_resource_report_prompt(question, context, report_format="apa", tota
            'Focus on the relevance, reliability, and significance of each source.\n' \
            'Ensure that the report is well-structured, informative, in-depth, and follows Markdown syntax.\n' \
            'Include relevant facts, figures, and numbers whenever available.\n' \
-           'The report should have a minimum length of 700 words.\n' \
+           f'The report should have a minimum length of {total_words} words.\n' \
         'You MUST include all relevant source urls.'\
         'Every url should be hyperlinked: [url website](url)'
 
@@ -74,7 +84,7 @@ def generate_custom_report_prompt(query_prompt, context, report_format="apa", to
     return f'"{context}"\n\n{query_prompt}'
 
 
-def generate_outline_report_prompt(question, context, report_format="apa", total_words=1000):
+def generate_outline_report_prompt(question, context, report_format="apa", total_words=1200):
     """ Generates the outline report prompt for the given question and research summary.
     Args: question (str): The question to generate the outline report prompt for
             research_summary (str): The research summary to generate the outline report prompt for
@@ -84,19 +94,8 @@ def generate_outline_report_prompt(question, context, report_format="apa", total
     return f'"""{context}""" Using the above information, generate an outline for a research report in Markdown syntax' \
            f' for the following question or topic: "{question}". The outline should provide a well-structured framework' \
            ' for the research report, including the main sections, subsections, and key points to be covered.' \
-           ' The research report should be detailed, informative, in-depth, and a minimum of 1,200 words.' \
+           f' The research report should be detailed, informative, in-depth, and a minimum of {total_words} words.' \
            ' Use appropriate Markdown syntax to format the outline and ensure readability.'
-
-
-def get_report_by_type(report_type):
-    report_type_mapping = {
-        ReportType.ResearchReport.value: generate_report_prompt,
-        ReportType.ResourceReport.value: generate_resource_report_prompt,
-        ReportType.OutlineReport.value: generate_outline_report_prompt,
-        ReportType.CustomReport.value: generate_custom_report_prompt,
-        ReportType.SubtopicReport.value: generate_subtopic_report_prompt
-    }
-    return report_type_mapping[report_type]
 
 
 def auto_agent_instructions():
@@ -172,7 +171,8 @@ def generate_subtopic_report_prompt(
     main_topic,
     context,
     report_format="apa",
-    total_words=1000,
+    total_words=800,
+    max_subsections=5,
 ) -> str:
 
     return f"""
@@ -181,16 +181,16 @@ def generate_subtopic_report_prompt(
     
     "Main Topic and Subtopic":
     Using the latest information available, construct a detailed report on the subtopic: {current_subtopic} under the main topic: {main_topic}.
-    You must limit the number of subsections to a maximum of 5.
+    You must limit the number of subsections to a maximum of {max_subsections}.
     
     "Content Focus":
     - The report should focus on answering the question, be well-structured, informative, in-depth, and include facts and numbers if available.
     - Use markdown syntax and follow the {report_format.upper()} format.
     
     "Structure and Formatting":
-    - As this sub-report will be part of a larger report, include only the main body divided into suitable subtopics without any introduction, conclusion, or reference section.
+    - As this sub-report will be part of a larger report, include only the main body divided into suitable subtopics without any introduction or conclusion section.
     
-    - Include hyperlinks to relevant URLs wherever referenced in the report, for example:
+    - You MUST include markdown hyperlinks to relevant source URLs wherever referenced in the report, for example:
     
         # Report Header
         
@@ -209,6 +209,8 @@ def generate_subtopic_report_prompt(
     "IMPORTANT!":
     - The focus MUST be on the main topic! You MUST Leave out any information un-related to it!
     - Must NOT have any introduction, conclusion, summary or reference section.
+    - You MUST include hyperlinks with markdown syntax ([url website](url)) related to the sentences wherever necessary.
+    - The report should have a minimum length of {total_words} words.
     """
 
 
@@ -221,3 +223,24 @@ def generate_report_introduction(question: str, research_summary: str = "") -> s
         - You must include hyperlinks with markdown syntax ([url website](url)) related to the sentences wherever necessary.
         Assume that the current date is {datetime.now(timezone.utc).strftime('%B %d, %Y')} if required.
     """
+
+
+report_type_mapping = {
+    ReportType.ResearchReport.value: generate_report_prompt,
+    ReportType.ResourceReport.value: generate_resource_report_prompt,
+    ReportType.OutlineReport.value: generate_outline_report_prompt,
+    ReportType.CustomReport.value: generate_custom_report_prompt,
+    ReportType.SubtopicReport.value: generate_subtopic_report_prompt
+}
+
+
+def get_prompt_by_report_type(report_type):
+    prompt_by_type = report_type_mapping.get(report_type)
+    default_report_type = ReportType.ResearchReport.value
+    if not prompt_by_type:
+        warnings.warn(f"Invalid report type: {report_type}.\n"
+                        f"Please use one of the following: {', '.join([enum_value for enum_value in report_type_mapping.keys()])}\n"
+                        f"Using default report type: {default_report_type} prompt.",
+                        UserWarning)
+        prompt_by_type = report_type_mapping.get(default_report_type)
+    return prompt_by_type
