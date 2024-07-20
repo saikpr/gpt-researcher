@@ -10,12 +10,13 @@ class OpenAIProvider:
         self,
         model,
         temperature,
-        max_tokens
+        max_tokens,
+        openai_api_key=None
     ):
         self.model = model
         self.temperature = temperature
         self.max_tokens = max_tokens
-        self.api_key = self.get_api_key()
+        self.api_key = openai_api_key or self.get_api_key()
         self.base_url = self.get_base_url()
         self.llm = self.get_llm_model()
 
@@ -51,7 +52,7 @@ class OpenAIProvider:
             api_key=self.api_key
         )
         if self.base_url:
-            llm.base_url = self.base_url
+            llm.openai_api_base = self.base_url
 
         return llm
 
